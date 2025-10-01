@@ -8,7 +8,7 @@ const app = express()
 
 
 app.use(cors({
-    origin:["https://bnv-task-smoky.vercel.app/users"],
+    origin:["https://bnv-task-smoky.vercel.app"],
     credentials:true
 }))
 app.use(express.urlencoded({extended:true}))
