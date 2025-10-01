@@ -7,10 +7,18 @@ const app = express()
 
 
 
-app.use(cors())
+app.use(cors({
+    origin:[
+        "http://localhost:5173", 
+        "https://bnv-task-smoky.vercel.app/users" 
+    ],
+    credentials:true
+}))
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 app.use(express.static("public"))
+// serve uploaded files
+app.use("/uploads", express.static("uploads"))
 
 
 

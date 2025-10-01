@@ -114,4 +114,22 @@ const viewUser = asyncHandler(async(req , res)=>{
 
 
 
-export {addUser , getUsers ,deleteUser , updateUser , viewUser}
+ const exportUsers = asyncHandler(async (req, res) => {
+  const users = await User.find().sort({ createdAt: -1 })
+  const headers = ['ID','FullName','Email','Gender','Status','Location','Mobile']
+  const rows = users.map(u => [
+    u._id,
+    `${u.firstName||''} ${u.lastName||''}`.trim(),
+    u.email||'',
+    u.gender||'',
+    u.activeStatus||'',
+    u.location||'',
+    u.mobileNumber||''
+  ])
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(',')).join('\n')
+  res.setHeader('Content-Type', 'text/csv')
+  res.setHeader('Content-Disposition', 'attachment; filename="users.csv"')
+  res.send(csv)
+})
+
+export {addUser , getUsers ,deleteUser , updateUser , viewUser, exportUsers}
