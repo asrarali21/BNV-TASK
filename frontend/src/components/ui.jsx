@@ -1,10 +1,10 @@
 export function Button({ variant='primary', className='', ...props }){
-  const base = 'px-3 py-2 rounded shadow transition'
+  const base = 'px-4 py-2 rounded-lg shadow-md transition-all duration-200 font-medium'
   const variants = {
-    primary: 'bg-[#7E2E2E] hover:brightness-110 text-white',
-    outline: 'border border-gray-300 hover:bg-gray-50',
-    danger: 'bg-red-600 hover:brightness-110 text-white',
-    subtle: 'bg-black/10 hover:bg-black/20',
+    primary: 'bg-[#4e8ef5] hover:bg-[#3d7ce8] text-white shadow-blue-200',
+    outline: 'border border-[#4e8ef5] hover:bg-blue-50 text-[#4e8ef5] hover:border-[#3d7ce8]',
+    danger: 'bg-red-500 hover:bg-red-600 text-white shadow-red-200',
+    subtle: 'bg-blue-100 hover:bg-blue-200 text-[#4e8ef5]',
   }
   return <button className={`${base} ${variants[variant]} ${className}`} {...props} />
 }
@@ -12,9 +12,9 @@ export function Button({ variant='primary', className='', ...props }){
 export function Avatar({ name, src }){
   const initials = String(name||'U').split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase()
   if (src) {
-    return <img src={src} alt={name} className="w-8 h-8 rounded-full object-cover" />
+    return <img src={src} alt={name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" />
   }
-  return <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white grid place-items-center text-xs font-semibold">{initials}</div>
+  return <div className="w-10 h-10 rounded-full bg-[#4e8ef5] text-white grid place-items-center text-sm font-bold border-2 border-white shadow-md">{initials}</div>
 }
 
 export function Modal({ open, title, children, actions, onClose }){

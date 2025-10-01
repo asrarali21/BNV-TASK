@@ -12,6 +12,7 @@ function UsersListPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [deleteModal, setDeleteModal] = useState({ open: false, user: null })
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -41,34 +42,39 @@ function UsersListPage() {
     )
   }, [list, query])
 
-  async function handleDelete(id){
-    if (!confirm('Delete this user?')) return
+  function openDeleteModal(user) {
+    setDeleteModal({ open: true, user })
+  }
+
+  function closeDeleteModal() {
+    setDeleteModal({ open: false, user: null })
+  }
+
+  async function handleDelete(){
+    if (!deleteModal.user) return
     try {
-      await fetchJson(`${API_BASE}/users/${id}`, { method: 'DELETE' })
-      setList(prev=>prev.filter(u=>u._id!==id))
-      toast.push('User deleted')
+      await fetchJson(`${API_BASE}/users/${deleteModal.user._id}`, { method: 'DELETE' })
+      setList(prev=>prev.filter(u=>u._id!==deleteModal.user._id))
+      toast.push('User deleted successfully')
+      closeDeleteModal()
     } catch(err){ toast.push(err.message, 'error') }
   }
 
-  function handleExport(){
-    const headers = ['ID','FullName','Email','Gender','Status','Location','Mobile']
-    const rows = filtered.map(u=>[
-      u._id,
-      `${u.firstName||''} ${u.lastName||''}`.trim(),
-      u.email||'',
-      u.gender||'',
-      u.activeStatus||'',
-      u.location||'',
-      u.mobileNumber||''
-    ])
-    const csv = [headers, ...rows].map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'users.csv'
-    a.click()
-    URL.revokeObjectURL(url)
+  async function handleExport(){
+    try {
+      const response = await fetch(`${API_BASE}/users/export`)
+      if (!response.ok) throw new Error('Export failed')
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'users.csv'
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.push('CSV exported successfully')
+    } catch(err) {
+      toast.push(err.message, 'error')
+    }
   }
 
   return (
@@ -79,11 +85,11 @@ function UsersListPage() {
             <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search users..." className="border rounded pl-9 pr-3 py-2 w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B04C4C]" />
             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">🔎</span>
           </div>
-          <Button onClick={()=>setQuery(query)}>Search</Button>
+          <Button className='cursor-pointer' onClick={()=>setQuery(query)}>Search</Button>
         </div>
         <div className="flex gap-2">
-          <Button onClick={()=>navigate('/users/add')}>+ Add User</Button>
-          <Button variant="outline" onClick={handleExport}>Export To Csv</Button>
+          <Button className='cursor-pointer' onClick={()=>navigate('/users/add')}>+ Add User</Button>
+          <Button className='cursor-pointer' variant="outline" onClick={handleExport}>Export To Csv</Button>
         </div>
       </div>
 
@@ -126,9 +132,9 @@ function UsersListPage() {
                 <td className="px-3 py-2">{u.location||'-'}</td>
                 <td className="px-3 py-2">
                   <div className="flex gap-2">
-                    <Button variant="subtle" onClick={()=>navigate(`/users/${u._id}`)}>View</Button>
-                    <Button variant="outline" onClick={()=>navigate(`/users/${u._id}/edit`)}>Edit</Button>
-                    <Button variant="danger" onClick={()=>handleDelete(u._id)}>Delete</Button>
+                    <Button className='cursor-pointer' variant="subtle" onClick={()=>navigate(`/users/${u._id}`)}>View</Button>
+                    <Button className='cursor-pointer' variant="outline" onClick={()=>navigate(`/users/${u._id}/edit`)}>Edit</Button>
+                    <Button className='cursor-pointer' variant="danger" onClick={()=>openDeleteModal(u)}>Delete</Button>
                   </div>
                 </td>
               </tr>
@@ -137,11 +143,36 @@ function UsersListPage() {
         </table>
       </div>
 
-      <div className="flex items-center justify-end gap-2">
-        <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
+      <div  className="flex items-center justify-end gap-2">
+        <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer">Prev</button>
         <span className="px-2">{page} / {totalPages}</span>
-        <button disabled={page>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+        <button  disabled={page>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer">Next</button>
       </div>
+
+      <Modal 
+        open={deleteModal.open} 
+        title="Delete User" 
+        onClose={closeDeleteModal}
+        actions={
+          <>
+            <Button variant="outline" onClick={closeDeleteModal}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete}>Delete</Button>
+          </>
+        }
+      >
+        <div className="text-center py-4">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Are you sure?</h3>
+          <p className="text-gray-600 mb-4">
+            This will permanently delete <strong>{deleteModal.user?.firstName} {deleteModal.user?.lastName}</strong> and all their data.
+          </p>
+          <p className="text-sm text-gray-500">This action cannot be undone.</p>
+        </div>
+      </Modal>
     </div>
   )
 }

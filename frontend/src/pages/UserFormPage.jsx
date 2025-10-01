@@ -45,7 +45,7 @@ function UserFormPage() {
   }
 
   return (
-    <div className="bg-white/70 backdrop-blur rounded-xl shadow p-6">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6">
       <h2 className="text-xl font-semibold mb-4">{isEdit? 'Edit':'Register'} Your Details</h2>
       {error && <div className="mb-3 text-red-600">{error}</div>}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">

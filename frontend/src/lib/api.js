@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api/v1'
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000/api/v1'
 
 export async function fetchJson(url, options) {
   const res = await fetch(url, options)
@@ -12,9 +12,8 @@ export async function fetchJson(url, options) {
 
 export function fileUrl(path){
   if (!path) return ''
-  // If backend stores like 'uploads/filename.jpg', expose via server origin
   const configuredBase = (import.meta.env.VITE_API_ORIGIN) || (import.meta.env.VITE_API_BASE)
-  const origin = configuredBase ? new URL(configuredBase).origin : window.location.origin
+  const origin = configuredBase ? new URL(configuredBase).origin : 'http://localhost:8000'
   if (path.startsWith('http')) return path
   if (path.startsWith('/')) return origin + path
   return `${origin}/${path}`

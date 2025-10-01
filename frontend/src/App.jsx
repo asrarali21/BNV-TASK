@@ -7,7 +7,7 @@ import UsersListPage from './pages/UsersListPage'
 import UserFormPage from './pages/UserFormPage'
 import UserDetailsPage from './pages/UserDetailsPage'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api/v1'
+const API_BASE = import.meta.env.VITE_API_BASE 
 
 
 

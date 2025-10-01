@@ -16,7 +16,7 @@ function UserDetailsPage(){
   if (error) return <div className="text-red-600">{error}</div>
   if (!user) return <div>Loading...</div>
   return (
-    <div className="bg-white/70 backdrop-blur rounded-xl shadow p-6">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6">
       <div className="flex items-center gap-3 mb-4">
         <Avatar name={`${user.firstName} ${user.lastName}`} src={fileUrl(user.profile)} />
         <div>
